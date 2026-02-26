@@ -2,69 +2,87 @@ package com.ofirbsh.secure_drop.ui;
 
 import com.ofirbsh.secure_drop.datamodels.User;
 import com.ofirbsh.secure_drop.services.UserService;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
 @Route("/register")
 public class Register extends VerticalLayout
 {
-    // Services
-    public UserService userService;
+    private final UserService userService;
 
-    // Components
-    public LoginForm registerForm;
+    private TextField usernameField;
+    private PasswordField passwordField;
+    private Button registerButton;
+
+    private Grid<User> usersGrid;
 
     public Register(UserService userService)
     {
         this.userService = userService;
 
-        registerForm = new LoginForm();
+        usernameField = new TextField("Username");
+        passwordField = new PasswordField("Password");
+        registerButton = new Button("Register");
 
-        registerForm.getElement().setAttribute("title", "Register");
+        usersGrid = new Grid<>(User.class);
 
-        registerForm.addLoginListener(event -> {
-            String username = event.getUsername();
-            String password = event.getPassword();
+        registerButton.addClickListener(e -> {
+            String username = usernameField.getValue();
+            String password = passwordField.getValue();
 
             boolean isSuccess = insertUser(new User(username, password));
 
-            registerForm.setError(!isSuccess);
+            if (isSuccess) {
+                usersGrid.setItems(userService.getAllUsers());
+                usernameField.clear();
+                passwordField.clear();
+            }
         });
 
-        // Add UI
+        usersGrid.setItems(userService.getAllUsers());
+        usersGrid.setColumns("username", "password");
+
         add(new H1("Register Page"));
-        add(registerForm);
+        add(usernameField);
+        add(passwordField);
+        add(registerButton);
+        add(usersGrid);
+
+
     }
 
     /**
-     * Add user to DB
+     * Send request to the backend to add user
+     * Checks validation Before the request
      * @param user
-     * @return Is Action was Successful
+     * @return
      */
     public boolean insertUser(User user)
     {
-        if (user.getUsername().length() < 6 && user.getPassword().length() < 8) 
+        // Validation
+        if (user.getUsername().length() < 6 || user.getPassword().length() < 8)
         {
-            Notification.show("Need atleast 6 character in User, 8 character in Password", 2000, Position.BOTTOM_END);
+            Notification.show("Need at least 6 characters in Username and 8 in Password", 2000, Position.MIDDLE);
             return false;
         }
 
-        try 
+        try
         {
             userService.insertUserToDB(user);
-
-            Notification.show("User Created Successfuly!", 2000, Position.BOTTOM_END);
+            Notification.show("User Created Successfully!", 2000, Position.MIDDLE);
             return true;
-        } 
-        catch (Exception e) 
+        }
+        catch (Exception e)
         {
-            Notification.show("Error adding user to Database", 2000, Position.BOTTOM_END);
+            Notification.show("Error adding user to Database", 2000, Position.MIDDLE);
             e.printStackTrace();
-
             return false;
         }
     }
