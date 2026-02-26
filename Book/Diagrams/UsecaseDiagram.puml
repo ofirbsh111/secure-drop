@@ -1,0 +1,18 @@
+@startuml UsecaseDiagram
+left to right direction
+actor "User" as user
+rectangle Application {
+  usecase "Login" as login
+  usecase "Logout" as logout
+  usecase "Create User" as create
+  usecase "Upload File" as upload
+  usecase "Download File" as download
+  usecase "Share File" as share
+}
+user --> login
+user --> logout
+user --> create
+user --> upload
+user --> download
+user --> share
+@enduml

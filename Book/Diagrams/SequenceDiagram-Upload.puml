@@ -1,0 +1,18 @@
+@startuml upload-file-sequence
+actor "User" as user
+participant "Client" as client
+participant "Server" as server
+database "DB" as db
+
+autonumber
+
+user -> client : select file + click Upload
+client -> server : POST /upload (file + metadata)
+server -> server : process file (prepare for storage)
+server -> db : save file metadata
+db --> server : metadata saved
+
+server --> client : upload success response
+client --> user : upload completed message
+
+@enduml
