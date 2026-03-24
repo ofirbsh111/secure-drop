@@ -9,4 +9,6 @@ import com.ofirbsh.secure_drop.datamodels.User;
 public interface UserRepository extends MongoRepository<User, String>
 {
     public Boolean existsByUsername(String username);
+    
+    Boolean existsByUsernameAndPassword(String username, String password);
 }

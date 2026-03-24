@@ -13,7 +13,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
 @Route("/register")
-public class Register extends VerticalLayout
+public class RegisterView extends VerticalLayout
 {
     private final UserService userService;
 
@@ -23,7 +23,7 @@ public class Register extends VerticalLayout
 
     private Grid<User> usersGrid;
 
-    public Register(UserService userService)
+    public RegisterView(UserService userService)
     {
         this.userService = userService;
 

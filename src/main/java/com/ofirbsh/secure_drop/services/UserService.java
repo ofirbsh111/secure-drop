@@ -18,8 +18,22 @@ public class UserService
     }
 
     /**
-     * Insert User to DB
-     * Checks if user already exists
+     * בודק האם המשתמש קיים לפי שם משתמש וסיסמא (התחברות)
+     * @param user
+     * @return מחזיר אם הערכים נכונים
+     */
+    public boolean validateUser(User user)
+    {
+        if (userRepo.existsByUsernameAndPassword(user.getUsername(), user.getPassword())) 
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * מכניס משתמש למסד הנתונים 
+     * ובודק אם המשתמש קיים כבר במערכת
      * @param user
      * @throws Exception
      */
@@ -32,7 +46,7 @@ public class UserService
     }
 
     /**
-     * Retun ArrayList of all Users
+     * מחזיר רשימה של כל המשתמשים הנמצאים במסד נתונים
      * @return
      */
     public ArrayList<User> getAllUsers()
