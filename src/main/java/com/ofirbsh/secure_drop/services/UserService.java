@@ -19,16 +19,13 @@ public class UserService
 
     /**
      * בודק האם המשתמש קיים לפי שם משתמש וסיסמא (התחברות)
-     * @param user
-     * @return מחזיר אם הערכים נכונים
+     * @param username
+     * @param password
+     * @return מחזיר את המשתמש אם קיים
      */
-    public boolean validateUser(User user)
+    public User validateUser(String username, String password)
     {
-        if (userRepo.existsByUsernameAndPassword(user.getUsername(), user.getPassword())) 
-        {
-            return true;
-        }
-        return false;
+        return userRepo.findByUsernameAndPassword(username, password);
     }
 
     /**

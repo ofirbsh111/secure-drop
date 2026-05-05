@@ -3,6 +3,7 @@ package com.ofirbsh.secure_drop.ui;
 import com.ofirbsh.secure_drop.datamodels.User;
 import com.ofirbsh.secure_drop.services.UserService;
 import com.ofirbsh.secure_drop.utilities.RouterHelper;
+import com.ofirbsh.secure_drop.utilities.SessionHelper;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
@@ -33,11 +34,12 @@ public class LoginView extends VerticalLayout
             String username = usernameField.getValue();
             String password = passwordField.getValue();
 
-            boolean isCurrect = LoginUser(new User(username, password));
+            User User = LoginUser(username, password);
 
-            if (isCurrect) 
+            if (User != null) 
             {
                 Notification.show("Login Successful!", 2000, Position.MIDDLE);
+                SessionHelper.setAttribute("User", User);
                 RouterHelper.navigateTo(HomeView.class);
             }
             else
@@ -57,15 +59,15 @@ public class LoginView extends VerticalLayout
      * @param user
      * @return
      */
-    public boolean LoginUser(User user)
+    public User LoginUser(String username, String password)
     {
         // Validation
-        if (user.getUsername().length() < 6 || user.getPassword().length() < 8)
+        if (username.length() < 6 || password.length() < 8)
         {
             Notification.show("Username or password is not valid", 2000, Position.MIDDLE);
-            return false;
+            return null;
         }
 
-        return userService.validateUser(user);
+        return userService.validateUser(username, password);
     }
 }

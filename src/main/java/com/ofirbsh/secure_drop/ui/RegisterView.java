@@ -18,6 +18,7 @@ public class RegisterView extends VerticalLayout
     private final UserService userService;
 
     private TextField usernameField;
+    private TextField fullnameField;
     private PasswordField passwordField;
     private Button registerButton;
 
@@ -29,6 +30,7 @@ public class RegisterView extends VerticalLayout
 
         usernameField = new TextField("Username");
         passwordField = new PasswordField("Password");
+        fullnameField = new TextField("Full name");
         registerButton = new Button("Register");
 
         usersGrid = new Grid<>(User.class);
@@ -36,8 +38,9 @@ public class RegisterView extends VerticalLayout
         registerButton.addClickListener(e -> {
             String username = usernameField.getValue();
             String password = passwordField.getValue();
+            String fullname = fullnameField.getValue();
 
-            boolean isSuccess = insertUser(new User(username, password));
+            boolean isSuccess = insertUser(new User(username, password, fullname));
 
             if (isSuccess) {
                 usersGrid.setItems(userService.getAllUsers());
@@ -59,14 +62,14 @@ public class RegisterView extends VerticalLayout
     }
 
     /**
-     * Send request to the backend to add user
-     * Checks validation Before the request
+     * שולח בקשה לשרת להוסיף את המשתמש למסד הנתונים
+     * בודק ולידציה לפני ההוספה כדי למנוע התנגשויות
      * @param user
      * @return
      */
     public boolean insertUser(User user)
     {
-        // Validation
+        // ולידציה
         if (user.getUsername().length() < 6 || user.getPassword().length() < 8)
         {
             Notification.show("Need at least 6 characters in Username and 8 in Password", 2000, Position.MIDDLE);
