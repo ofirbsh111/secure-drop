@@ -2,14 +2,12 @@ package com.ofirbsh.secure_drop.datamodels;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.ofirbsh.secure_drop.services.ECCService;
+import com.ofirbsh.secure_drop.services.HashService;
 import com.vaadin.flow.component.template.Id;
 
 /**
@@ -26,14 +24,15 @@ public class User
     private ArrayList<Integer> files;
     private ECCKeyPair Keys;
 
-    public User(String username, String password, String fullname) 
+    public User(String username, String password, String fullname, String joinDate) 
     {
         this.username = username;
-        this.password = password;
         this.fullname = fullname;
+        this.joinDate = joinDate;
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        this.joinDate = LocalDate.now().format(formatter);
+        // שומר את הסיסמא כערך Hash
+        byte[] passwordByte = HashService.sha256(password.getBytes());
+        this.password = HashService.bytesToHex(passwordByte);
 
         SecureRandom rnd = new SecureRandom();
 
@@ -96,7 +95,8 @@ public class User
     }
 
     @Override
-    public String toString() {
+    public String toString() 
+    {
         return "User [username=" + username + ", password=" + password + "]";
     }
 }

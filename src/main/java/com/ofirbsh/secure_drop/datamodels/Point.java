@@ -8,11 +8,16 @@ public class Point
     private BigInteger y;
     private boolean infinity;
     
-    public Point(BigInteger x, BigInteger y, boolean flag) 
+    public Point(BigInteger x, BigInteger y, boolean infinity) 
     {
         this.x = x;
         this.y = y;
-        this.infinity = flag;
+        this.infinity = infinity;
+    }
+
+    public Point()
+    {
+        
     }
 
     public static Point of(BigInteger x, BigInteger y)

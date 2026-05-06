@@ -1,5 +1,8 @@
 package com.ofirbsh.secure_drop.ui;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import com.ofirbsh.secure_drop.datamodels.User;
 import com.ofirbsh.secure_drop.services.UserService;
 import com.vaadin.flow.component.button.Button;
@@ -40,7 +43,7 @@ public class RegisterView extends VerticalLayout
             String password = passwordField.getValue();
             String fullname = fullnameField.getValue();
 
-            boolean isSuccess = insertUser(new User(username, password, fullname));
+            boolean isSuccess = insertUser(username, password, fullname);
 
             if (isSuccess) {
                 usersGrid.setItems(userService.getAllUsers());
@@ -57,7 +60,7 @@ public class RegisterView extends VerticalLayout
         add(passwordField);
         add(registerButton);
         add(usersGrid);
-
+        // FIXME: להוסיף קלט ל fullname
 
     }
 
@@ -67,14 +70,19 @@ public class RegisterView extends VerticalLayout
      * @param user
      * @return
      */
-    public boolean insertUser(User user)
+    public boolean insertUser(String username, String password, String fullname)
     {
         // ולידציה
-        if (user.getUsername().length() < 6 || user.getPassword().length() < 8)
+        if (username.length() < 6 || password.length() < 8)
         {
             Notification.show("Need at least 6 characters in Username and 8 in Password", 2000, Position.MIDDLE);
             return false;
         }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String JoinDate = LocalDate.now().format(formatter);
+        
+        User user = new User(username, password, fullname, JoinDate);
 
         try
         {

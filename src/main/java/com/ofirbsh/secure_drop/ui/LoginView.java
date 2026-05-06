@@ -1,6 +1,7 @@
 package com.ofirbsh.secure_drop.ui;
 
 import com.ofirbsh.secure_drop.datamodels.User;
+import com.ofirbsh.secure_drop.services.HashService;
 import com.ofirbsh.secure_drop.services.UserService;
 import com.ofirbsh.secure_drop.utilities.RouterHelper;
 import com.ofirbsh.secure_drop.utilities.SessionHelper;
@@ -68,6 +69,8 @@ public class LoginView extends VerticalLayout
             return null;
         }
 
-        return userService.validateUser(username, password);
+        byte[] passwordByte = HashService.sha256(password.getBytes());
+
+        return userService.validateUser(username, HashService.bytesToHex(passwordByte));
     }
 }

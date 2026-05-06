@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.ofirbsh.secure_drop.datamodels.FileModel;
 
 @Repository
-public interface FileRepository extends MongoRepository<FileModel, Integer>
+public interface FileRepository extends MongoRepository<FileModel, String>
 {
     
 }

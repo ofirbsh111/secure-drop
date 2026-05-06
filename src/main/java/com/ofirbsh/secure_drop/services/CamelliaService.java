@@ -1,5 +1,8 @@
 package com.ofirbsh.secure_drop.services;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class CamelliaService 
 {
     private static final int[] SBOX1 = new int[] {
@@ -21,7 +24,7 @@ public class CamelliaService
         64, 40, 211, 123, 187, 201, 67, 193, 21, 227, 173, 244, 119, 199, 128, 158 };
 
     // Main Fucntions
-    public byte[] encrypt(byte[] data, byte[] key)
+    public static byte[] encrypt(byte[] data, byte[] key)
     {
         byte[] padded = addPadding(data);
         byte[][] blocks = splitToBlocks(padded);
@@ -53,7 +56,7 @@ public class CamelliaService
      * @param subKey
      * @return
      */
-    public byte[] F(byte[] right, byte[] subKey)
+    public static byte[] F(byte[] right, byte[] subKey)
     {
         byte[] result = new byte[8];
 
@@ -82,7 +85,7 @@ public class CamelliaService
      * @param Block
      * @return
      */
-    public byte[] P(byte[] Block)
+    public static byte[] P(byte[] Block)
     {
         byte[] result = new byte[8];
 
@@ -104,7 +107,7 @@ public class CamelliaService
      * @param rounds how many keys are needed (rounds = subkeys)
      * @return Generated Subkeys
      */
-    public byte[][] genetateSubKeys(byte[] key, int rounds)
+    public static byte[][] genetateSubKeys(byte[] key, int rounds)
     {
         byte[][] subKeys = new byte[rounds][8];
 
@@ -139,7 +142,7 @@ public class CamelliaService
      * @param rounds
      * @return encrypted block
      */
-    public byte[] feistelRounds(byte[] left, byte[] right, byte[][] subKeys)
+    public static byte[] feistelRounds(byte[] left, byte[] right, byte[][] subKeys)
     {
         for (int r = 0; r < subKeys.length; r++) 
         {
@@ -211,7 +214,7 @@ public class CamelliaService
      * @param key
      * @return
      */
-    public byte[] encryptBlock(byte[] block, byte[] key)
+    public static byte[] encryptBlock(byte[] block, byte[] key)
     {
         byte[] whitened = xorBlock(block, key);
 
@@ -254,7 +257,7 @@ public class CamelliaService
      * @param data File Data
      * @return Array of blocks in 16 bytes
      */
-    public byte[][] splitToBlocks(byte[] data) 
+    public static byte[][] splitToBlocks(byte[] data) 
     {
         int blockSize = 16;
         int numBlocks = data.length / blockSize;
@@ -278,7 +281,7 @@ public class CamelliaService
      * @param blocks
      * @return
      */
-    public byte[] joinBlocks(byte[][] blocks)
+    public static byte[] joinBlocks(byte[][] blocks)
     {
         int blockSize = 16;
         byte[] data = new byte[blocks.length * blockSize];
@@ -300,7 +303,7 @@ public class CamelliaService
      * @param data
      * @return data with padding
      */
-    public byte[] addPadding(byte[] data)
+    public static byte[] addPadding(byte[] data)
     {
         int blockSize = 16;
         int padLen = blockSize - (data.length % blockSize);
@@ -341,7 +344,7 @@ public class CamelliaService
      * @param block
      * @return
      */
-    public byte[] getLeft(byte[] block)
+    public static byte[] getLeft(byte[] block)
     {
         byte[] left = new byte[8];
         for (int i = 0; i < left.length; i++) 
@@ -357,7 +360,7 @@ public class CamelliaService
      * @param block
      * @return
      */
-    public byte[] getRight(byte[] block)
+    public static byte[] getRight(byte[] block)
     {
         byte[] right = new byte[8];
         for (int i = 0; i < right.length; i++) 
@@ -374,7 +377,7 @@ public class CamelliaService
      * @param key key of 128 bit
      * @return XOR on block
      */
-    public byte[] xorBlock(byte[] block, byte[] key)
+    public static byte[] xorBlock(byte[] block, byte[] key)
     {
         byte[] result = new byte[block.length];
 
