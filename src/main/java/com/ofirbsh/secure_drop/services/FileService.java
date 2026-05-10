@@ -6,19 +6,26 @@ import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 
-import com.ofirbsh.secure_drop.datamodels.FileModel;
+import com.ofirbsh.secure_drop.datamodels.FileContent;
+import com.ofirbsh.secure_drop.datamodels.FileMetadata;
 import com.ofirbsh.secure_drop.datamodels.User;
-import com.ofirbsh.secure_drop.repositories.FileRepository;
+import com.ofirbsh.secure_drop.repositories.FileContentRepository;
+import com.ofirbsh.secure_drop.repositories.FileMetadataRepository;
+import com.ofirbsh.secure_drop.repositories.UserRepository;
 import com.vaadin.flow.server.streams.UploadMetadata;
 
 @Service
 public class FileService 
 {
-    private FileRepository fileRepo;
+    private FileMetadataRepository fileMetadataRepo;
+    private FileContentRepository fileContentRepo;
+    private UserRepository userRepo;
 
-    public FileService(FileRepository fileRepo)
+    public FileService(FileMetadataRepository fileMetadataRepo, FileContentRepository fileContentRepo, UserRepository userRepo)
     {
-        this.fileRepo = fileRepo;
+        this.fileMetadataRepo = fileMetadataRepo;
+        this.fileContentRepo = fileContentRepo;
+        this.userRepo = userRepo;
     }
     
     /**
@@ -44,22 +51,62 @@ public class FileService
         byte[] key = HashService.hexToByte(owner.getPassword());
         byte[] encyptFile = CamelliaService.encrypt(data, key);
 
-        FileModel uploadedFile = new FileModel(ownerUsername, fileName, originalName, fileType, encyptFile, bytesSize, UploadDate);
-        fileRepo.insert(uploadedFile);
+        FileMetadata fileMetadata = new FileMetadata(ownerUsername, fileName, originalName, fileType, bytesSize, UploadDate);
+        fileMetadataRepo.insert(fileMetadata);
+
+        FileContent fileContent = new FileContent(fileMetadata.getId(), encyptFile);
+        fileContentRepo.insert(fileContent);
     }
 
-    public byte[] donwloadFile(FileModel encryptFile, User owner)
+    /**
+     * מחזיר קובץ מפוענח של הבעלים
+     * @param encryptFile
+     * @param owner
+     * @return
+     */
+    public byte[] donwloadFile(FileMetadata fileMetadata, User owner)
     {
         byte[] key = HashService.hexToByte(owner.getPassword());
-        return CamelliaService.decrypt(encryptFile.getEncryptfile(), key);
+        FileContent fileContent = fileContentRepo.findByFileId(fileMetadata.getId());
+
+        return CamelliaService.decrypt(fileContent.getEncryptFile(), key);
+    }
+
+    /**
+     * מוחק קובץ על פי מזהה
+     * @param fileId
+     */
+    public void deleteFile(String fileId)
+    {
+        fileMetadataRepo.deleteById(fileId);
+        fileContentRepo.deleteByFileId(fileId);
+    }
+
+    /**
+     * מוסיף גישה למשתמש אחר שהוא לא הבעלים
+     * @param fileId מזהה הקובץ
+     * @param username המשתמש שמקבל גישה
+     */
+    public void addSharedUser(String fileId, String username)
+    {
+        FileMetadata file = fileMetadataRepo.findById(fileId).orElse(null);
+
+        if (!userRepo.existsByUsername(username))
+            return;
+
+        if (file.getSharedUsers().contains(username))
+            return;
+
+        file.getSharedUsers().add(username);
+        fileMetadataRepo.save(file);
     }
     
     /**
      * מחזיר רשימה של כל הקבצים על פי שם משתמש
      * @return
      */
-    public ArrayList<FileModel> getAllFileByUsername(String ownerUsername)
+    public ArrayList<FileMetadata> getAllFileByUsername(String ownerUsername)
     {
-        return (ArrayList<FileModel>) fileRepo.findByOwnerUsername(ownerUsername);
+        return (ArrayList<FileMetadata>) fileMetadataRepo.findByOwnerUsername(ownerUsername);
     }
 }

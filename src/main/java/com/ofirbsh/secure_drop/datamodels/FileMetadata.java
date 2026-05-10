@@ -1,38 +1,38 @@
 package com.ofirbsh.secure_drop.datamodels;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.ArrayList;
 
-import com.vaadin.flow.component.template.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * מחלקת הקבצים, מכילה בתוכה מאפיינים של הקובץ
  */
-@Document(collection = "Files")
-public class FileModel 
+@Document(collection = "FilesMetadata")
+public class FileMetadata 
 {
     @Id
     private String id;
     
     private String ownerUsername;
-    private String fileName;
+    private ArrayList<String> sharedUsers = new ArrayList<>();
+    private String fileName;    
     private String originalName;
     private String fileType;
-    private  byte[] encryptfile;
     private int bytesSize;
     private String uploadDate;
 
-    public FileModel() 
+    public FileMetadata() 
     {
         
     }
 
-    public FileModel(String ownerUsername, String fileName, String originalName, String fileType, byte[] encryptfile, int bytesSize, String uploadDate) 
+    public FileMetadata(String ownerUsername, String fileName, String originalName, String fileType, int bytesSize, String uploadDate) 
     {
         this.ownerUsername = ownerUsername;
         this.fileName = fileName;
         this.originalName = originalName;
         this.fileType = fileType;
-        this.encryptfile = encryptfile;
         this.bytesSize = bytesSize;
         this.uploadDate = uploadDate;
     }
@@ -77,14 +77,6 @@ public class FileModel
         this.fileType = fileType;
     }
 
-    public byte[] getEncryptfile() {
-        return encryptfile;
-    }
-
-    public void setEncryptfile(byte[] encryptfile) {
-        this.encryptfile = encryptfile;
-    }
-
     public int getBytesSize() {
         return bytesSize;
     }
@@ -101,7 +93,11 @@ public class FileModel
         this.uploadDate = uploadDate;
     }
 
-    
+    public ArrayList<String> getSharedUsers() {
+        return sharedUsers;
+    }
 
-    
+    public void setSharedUsers(ArrayList<String> sharedUsers) {
+        this.sharedUsers = sharedUsers;
+    }
 }
