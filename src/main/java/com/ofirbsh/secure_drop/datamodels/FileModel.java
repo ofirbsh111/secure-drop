@@ -21,6 +21,11 @@ public class FileModel
     private int bytesSize;
     private String uploadDate;
 
+    public FileModel() 
+    {
+        
+    }
+
     public FileModel(String ownerUsername, String fileName, String originalName, String fileType, byte[] encryptfile, int bytesSize, String uploadDate) 
     {
         this.ownerUsername = ownerUsername;

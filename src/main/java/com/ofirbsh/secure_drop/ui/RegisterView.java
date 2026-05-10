@@ -49,6 +49,7 @@ public class RegisterView extends VerticalLayout
                 usersGrid.setItems(userService.getAllUsers());
                 usernameField.clear();
                 passwordField.clear();
+                fullnameField.clear();
             }
         });
 
@@ -57,11 +58,10 @@ public class RegisterView extends VerticalLayout
 
         add(new H1("Register Page"));
         add(usernameField);
+        add(fullnameField);
         add(passwordField);
         add(registerButton);
         add(usersGrid);
-        // FIXME: להוסיף קלט ל fullname
-
     }
 
     /**
@@ -73,9 +73,9 @@ public class RegisterView extends VerticalLayout
     public boolean insertUser(String username, String password, String fullname)
     {
         // ולידציה
-        if (username.length() < 6 || password.length() < 8)
+        if (username.length() < 6 || password.length() < 8 || fullname.length() < 6)
         {
-            Notification.show("Need at least 6 characters in Username and 8 in Password", 2000, Position.MIDDLE);
+            Notification.show("Need at least 6 characters in Username & Fullname and 8 in Password", 2000, Position.MIDDLE);
             return false;
         }
 

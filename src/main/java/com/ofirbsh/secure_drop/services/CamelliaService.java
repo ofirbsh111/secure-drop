@@ -37,7 +37,7 @@ public class CamelliaService
         return finalData;
     }
 
-    public byte[] decrypt(byte[] data, byte[] key)
+    public static byte[] decrypt(byte[] data, byte[] key)
     {
         byte[][] blocks = splitToBlocks(data);
 
@@ -125,7 +125,7 @@ public class CamelliaService
      * @param subKeys
      * @return
      */
-    public byte[][] reverseSubKeys(byte[][] subKeys)
+    public static byte[][] reverseSubKeys(byte[][] subKeys)
     {
         byte[][] reversed = new byte[subKeys.length][8];
 
@@ -178,7 +178,7 @@ public class CamelliaService
      * @param rounds
      * @return Decrypted block
      */
-    public byte[] feistelRoundsDecrypt(byte[] left, byte[] right, byte[][] subKeys)
+    public static byte[] feistelRoundsDecrypt(byte[] left, byte[] right, byte[][] subKeys)
     {
         for (int r = 0; r < subKeys.length; r++) 
         {
@@ -234,7 +234,7 @@ public class CamelliaService
      * @param key
      * @return
      */
-    public byte[] decryptBlock(byte[] block, byte[] key)
+    public static byte[] decryptBlock(byte[] block, byte[] key)
     {
         byte[] left = getLeft(block);
         byte[] right = getRight(block);
@@ -328,7 +328,7 @@ public class CamelliaService
      * @param data
      * @return unpadded data
      */
-    public byte[] removePadding(byte[] data)
+    public static byte[] removePadding(byte[] data)
     {
         int padLed = data[data.length - 1] & 0xFF;
 

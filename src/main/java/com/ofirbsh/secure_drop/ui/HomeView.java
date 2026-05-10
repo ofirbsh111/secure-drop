@@ -1,37 +1,62 @@
 package com.ofirbsh.secure_drop.ui;
 
+import java.io.ByteArrayInputStream;
+
+import com.ofirbsh.secure_drop.datamodels.FileModel;
 import com.ofirbsh.secure_drop.datamodels.User;
 import com.ofirbsh.secure_drop.services.FileService;
 import com.ofirbsh.secure_drop.utilities.SessionHelper;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.streams.InMemoryUploadHandler;
 import com.vaadin.flow.server.streams.UploadHandler;
 import com.vaadin.flow.server.streams.UploadMetadata;
 
-@Route("/home")
-public class HomeView extends VerticalLayout
+@Route(value = "home", layout = MainLayout.class)
+public class HomeView extends VerticalLayout implements BeforeEnterObserver
 {
     // סרביסים
     private final FileService fileService;
 
     // אלמנטים
     private Upload uploadFile;
-    private Select<String> selectFile;
+    private Grid<FileModel> grid;
     private Button downloadFile;
+
+    // משתנים
+    private FileModel selectedFile;
 
     public HomeView(FileService fileService)
     {
         this.fileService = fileService;
 
+        User user = (User) SessionHelper.getAttribute("User");
+
+        // אלמנטים
         uploadFile = new Upload();
-        selectFile = new Select<>();
+        grid = new Grid<>(FileModel.class);
         downloadFile = new Button("download");
 
+        // משתנים
+        selectedFile = null;
+
+        uploadFile.setMaxFiles(1);
+        uploadFile.setDropLabel(new Span("Drop file here"));
+        uploadFile.setUploadButton(new Button("Upload File"));
+
+        // Upload Handler
         InMemoryUploadHandler inMemoryHandler = UploadHandler
         .inMemory((metadata, data) -> {
             String fileName = metadata.fileName();
@@ -42,20 +67,39 @@ public class HomeView extends VerticalLayout
 
             System.out.println("==> File Uploaded: [Name: " + fileName + ", Type: " + fileType + "]");
         });
-
         uploadFile.setUploadHandler(inMemoryHandler);
 
-        HorizontalLayout hozLayout = new HorizontalLayout();
+        // Files Grid
+        grid.setWidthFull();
+        grid.setColumns("fileName", "uploadDate");
+        grid.setSelectionMode(SelectionMode.SINGLE);
 
-        selectFile.setLabel("Select File");
-        selectFile.setItems(); // add file names from db
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            this.selectedFile = event.getValue();
 
-        hozLayout.setAlignItems(Alignment.BASELINE);
-        hozLayout.add(selectFile);
-        hozLayout.add(downloadFile);
+            if (selectedFile == null) 
+            {
+                System.out.println("No File Selected");
+                return;
+            }
 
+            System.out.println("File Selected: " + selectedFile.getFileName());
+        });
+
+        if(user != null)
+        {
+            grid.setItems(fileService.getAllFileByUsername(user.getUsername()));
+        }
+
+        // Download Button
+        downloadFile.addClickListener(event -> {
+            downloadSelectedFile();
+        });
+
+        // Page
         add(uploadFile);
-        add(hozLayout);
+        add(grid);
+        add(downloadFile);
     }
 
     /**
@@ -65,7 +109,52 @@ public class HomeView extends VerticalLayout
      */
     public void proccessFile(UploadMetadata metadata, byte[] data)
     {
-        User Owner = (User) SessionHelper.getAttribute("User");
-        fileService.proccessFile(metadata, data, Owner);
+        User owner = (User) SessionHelper.getAttribute("User");
+
+        UI ui = UI.getCurrent();
+        uploadFile.setEnabled(false);
+        Notification.show("Uploading file...", 2000, Position.BOTTOM_END);
+
+        new Thread(() -> {
+            fileService.proccessFile(metadata, data, owner);
+
+            ui.access(() -> {
+                grid.setItems(fileService.getAllFileByUsername(owner.getUsername()));
+                uploadFile.setEnabled(true);
+                Notification.show("File uploaded successfully", 2000, Position.BOTTOM_END);
+            });
+        }).start();
     }
-}
+
+    public void downloadSelectedFile()
+    {
+        if (selectedFile == null)
+        {
+            Notification.show("Select a File to download", 2000, Position.BOTTOM_END);
+            return;
+        }
+
+        User owner = (User) SessionHelper.getAttribute("User");
+        byte[] decryptFile = fileService.donwloadFile(selectedFile, owner);
+
+        StreamResource resource = new StreamResource(selectedFile.getFileName(), () -> new ByteArrayInputStream(decryptFile));
+
+        Anchor downloadLink = new Anchor(resource, "");
+        downloadLink.getElement().setAttribute("download", true);
+        downloadLink.getStyle().set("display", "none");
+        
+        add(downloadLink);
+
+        downloadLink.getElement().executeJs("this.click();");
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) 
+    {
+        User user = (User) SessionHelper.getAttribute("User");
+        if (user == null) 
+        { 
+            event.forwardTo(LoginView.class);
+        }
+    }
+} 
