@@ -10,5 +10,7 @@ import com.ofirbsh.secure_drop.datamodels.FileMetadata;
 @Repository
 public interface FileMetadataRepository extends MongoRepository<FileMetadata, String>
 {
-    ArrayList<FileMetadata> findByOwnerUsername(String ownerUsername);
+    public ArrayList<FileMetadata> findByOwnerUsername(String ownerUsername);
+
+    public ArrayList<FileMetadata> findBySharedUsersContains(String username);
 }

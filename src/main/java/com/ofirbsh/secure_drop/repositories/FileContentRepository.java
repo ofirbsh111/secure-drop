@@ -6,6 +6,6 @@ import com.ofirbsh.secure_drop.datamodels.FileContent;
 
 public interface FileContentRepository extends MongoRepository<FileContent, String>
 {
-    FileContent findByFileId(String fileId);
-    void deleteByFileId(String fileId);
+    public FileContent findByFileId(String fileId);
+    public void deleteByFileId(String fileId);
 }

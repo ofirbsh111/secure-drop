@@ -15,8 +15,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.messages.MessageInput;
-import com.vaadin.flow.component.messages.MessageInputI18n;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -123,12 +121,23 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver
             }
 
             System.out.println("File Selected: " + selectedFile.getFileName());
+            if (!selectedFile.getOwnerUsername().equals(user.getUsername())) 
+            {
+                deleteBtn.setVisible(false);
+                shareBtn.setVisible(false);
+            }
+            else
+            {
+                deleteBtn.setVisible(true);
+                shareBtn.setVisible(true);
+            }
+
             fileManagmentLayout.setVisible(true);
         });
 
         if(user != null)
         {
-            grid.setItems(fileService.getAllFileByUsername(user.getUsername()));
+            grid.setItems(fileService.getAllFileMetadataByUsername(user.getUsername()));
         }
 
         // Download Button
@@ -164,14 +173,14 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver
             }
 
             fileService.addSharedUser(selectedFile.getId(), username);
-            grid.setItems(fileService.getAllFileByUsername(user.getUsername()));
+            grid.setItems(fileService.getAllFileMetadataByUsername(user.getUsername()));
             shareDialog.close();
         });
 
         // Delete Button
         deleteBtn.addClickListener(event -> {
             fileService.deleteFile(selectedFile.getId());
-            grid.setItems(fileService.getAllFileByUsername(user.getUsername()));
+            grid.setItems(fileService.getAllFileMetadataByUsername(user.getUsername()));
         });
 
         // Page
@@ -217,7 +226,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver
             fileService.proccessFile(metadata, data, owner);
 
             ui.access(() -> {
-                grid.setItems(fileService.getAllFileByUsername(owner.getUsername()));
+                grid.setItems(fileService.getAllFileMetadataByUsername(owner.getUsername()));
                 uploadFile.setEnabled(true);
                 Notification.show("File uploaded successfully", 2000, Position.BOTTOM_END);
             });

@@ -1,6 +1,7 @@
 package com.ofirbsh.secure_drop.services;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 import org.springframework.stereotype.Service;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.ofirbsh.secure_drop.datamodels.Point;
 
 @Service
-public class KeyDerivationService 
+public class KeyService 
 {
     /**
      * derive From the sharedSecret Key into 16 byte
@@ -38,5 +39,15 @@ public class KeyDerivationService
             raw = Arrays.copyOfRange(raw, 1, raw.length);
 
         return raw;
+    }
+
+    public static byte[] generateRandomKey(int size)
+    {
+        byte[] key = new byte[size];
+
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextBytes(key);
+
+        return key;
     }
 }

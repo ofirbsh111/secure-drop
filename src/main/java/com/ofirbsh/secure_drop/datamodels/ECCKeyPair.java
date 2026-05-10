@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public class ECCKeyPair 
 {
-    private final BigInteger privateKey;
+    private final BigInteger privateKey; // FIXME: encrypt privateKey before saving to DB
     private final Point publicKey;
 
     public ECCKeyPair(BigInteger privateKey, Point publicKey)

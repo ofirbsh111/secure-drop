@@ -3,20 +3,51 @@ package com.ofirbsh.secure_drop.services;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
+import org.springframework.stereotype.Service;
+
+import com.ofirbsh.secure_drop.datamodels.ECCConfig;
 import com.ofirbsh.secure_drop.datamodels.ECCKeyPair;
+import com.ofirbsh.secure_drop.datamodels.EncryptedFileKeyResult;
 import com.ofirbsh.secure_drop.datamodels.Point;
 
+@Service
 public class ECCService
 {
-    private final BigInteger p;
-    private final BigInteger a;
-    private final BigInteger b;
+    private final BigInteger p = ECCConfig.P;
+    private final BigInteger a = ECCConfig.A;
+    private final BigInteger b = ECCConfig.B;
 
-    public ECCService(BigInteger p, BigInteger a, BigInteger b) 
+    /**
+     * Encrypt key with temp private key & public owner key
+     * @param fileKey
+     * @param ownerPublicKey
+     * @param G
+     * @return
+     */
+    public EncryptedFileKeyResult encryptKeyWithPublicKey(byte[] fileKey, Point ownerPublicKey)
     {
-        this.p = p;
-        this.a = a;
-        this.b = b;
+        Point G = ECCConfig.G;
+
+        SecureRandom random = new SecureRandom();
+
+        ECCKeyPair ephemeralKeyPair = generateKeyPair(G, random);
+
+        Point sharedSecret = deriveSharedSecret(ephemeralKeyPair.getPrivateKey(), ownerPublicKey);
+
+        byte[] derivedKey = KeyService.deriveKeyFromSharedSecret(sharedSecret, fileKey.length);
+
+        byte[] encryptedFileKey = xor(fileKey, derivedKey);
+
+        return new EncryptedFileKeyResult(encryptedFileKey, ephemeralKeyPair.getPublicKey());
+    }
+
+    public byte[] decryptFileKeyWithPrivateKey(byte[] encryptedFileKey, BigInteger ownerPrivateKey, Point ephemeralPublicKey)
+    {
+        Point sharedSecret = deriveSharedSecret(ownerPrivateKey, ephemeralPublicKey);
+
+        byte[] derivedKey = KeyService.deriveKeyFromSharedSecret(sharedSecret, encryptedFileKey.length);
+
+        return xor(encryptedFileKey, derivedKey);
     }
 
     /**
@@ -138,6 +169,18 @@ public class ECCService
 
             G = add(G, G);
             k = k.shiftRight(1);
+        }
+
+        return result;
+    }
+
+    private byte[] xor(byte[] data, byte[] key)
+    {
+        byte[] result = new byte[data.length];
+
+        for (int i = 0; i < data.length; i++)
+        {
+            result[i] = (byte) (data[i] ^ key[i]);
         }
 
         return result;

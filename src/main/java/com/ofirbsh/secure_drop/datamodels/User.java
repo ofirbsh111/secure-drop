@@ -36,12 +36,9 @@ public class User
 
         SecureRandom rnd = new SecureRandom();
 
-        ECCService curve = new ECCService(
-                BigInteger.valueOf(17),
-                BigInteger.valueOf(2),
-                BigInteger.valueOf(2));
+        ECCService curve = new ECCService();
         
-        Point G = Point.of(BigInteger.valueOf(5), BigInteger.valueOf(1));
+        Point G = ECCConfig.G;
 
         this.Keys = curve.generateKeyPair(G, rnd);
     }
