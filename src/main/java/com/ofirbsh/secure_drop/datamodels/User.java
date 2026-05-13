@@ -1,6 +1,5 @@
 package com.ofirbsh.secure_drop.datamodels;
 
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 

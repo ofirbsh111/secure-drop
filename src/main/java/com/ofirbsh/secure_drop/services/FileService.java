@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 
-import com.ofirbsh.secure_drop.datamodels.ECCConfig;
 import com.ofirbsh.secure_drop.datamodels.EncryptedFileKeyResult;
 import com.ofirbsh.secure_drop.datamodels.FileContent;
 import com.ofirbsh.secure_drop.datamodels.FileKeyAccess;
@@ -86,6 +85,19 @@ public class FileService
         byte[] key = eccService.decryptFileKeyWithPrivateKey(keyAccess.getEncryptedFileKey(), owner.getKeys().getPrivateKey(), keyAccess.getEphemeralPublicKey());
 
         return CamelliaService.decrypt(fileContent.getEncryptFile(), key);
+    }
+
+    /**
+     * מחזיר קובץ מוצפן של הבעלים
+     * @param encryptFile
+     * @param owner
+     * @return
+     */
+    public byte[] donwloadEncryptFile(FileMetadata fileMetadata)
+    {
+        FileContent fileContent = fileContentRepo.findByFileId(fileMetadata.getId());
+
+        return fileContent.getEncryptFile();
     }
 
     /**

@@ -1,63 +1,59 @@
 package com.ofirbsh.secure_drop.ui;
 
-import com.ofirbsh.secure_drop.datamodels.User;
-import com.ofirbsh.secure_drop.utilities.SessionHelper;
+import com.ofirbsh.secure_drop.utilities.RouterHelper;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.Scroller;
-import com.vaadin.flow.component.sidenav.SideNav;
-import com.vaadin.flow.component.sidenav.SideNavItem;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 
 public class MainLayout extends AppLayout
 {
-    // Layout
-    private HorizontalLayout topNavbar;
-    private SideNav nav;
+    private HorizontalLayout hozLayout;
 
-    // אלמנטים
-    private Button logoutBtn;
+    private Button loginBtn;
+    private Button registerBtn;
 
     public MainLayout()
     {
-        User user = (User) SessionHelper.getAttribute("User");
+        // אתחול
+        hozLayout = new HorizontalLayout(Alignment.CENTER);
 
-        // Layout
-        topNavbar = new HorizontalLayout();
-        nav = new SideNav();
-        Scroller scroller = new Scroller(nav);
+        loginBtn = new Button("Login");
+        registerBtn = new Button("Register");
 
-        // אלמנטים
-        DrawerToggle toggle = new DrawerToggle();
-        logoutBtn = new Button("Logout");
+        // משתנים
+        H2 title = new H2("SecureDrop");
 
-        SideNavItem homeLink = new SideNavItem("Home", HomeView.class, VaadinIcon.HOME.create());
-        SideNavItem profileLink = new SideNavItem("Profile", ProfileView.class, VaadinIcon.USER.create());
-        nav.addItem(homeLink);
-        nav.addItem(profileLink);
+        // עיצוב
+        hozLayout.getStyle().setPadding("10px");
+        hozLayout.setWidthFull();
 
-        topNavbar.setWidthFull();
-        topNavbar.setAlignItems(FlexComponent.Alignment.CENTER);
-        topNavbar.getStyle().setPadding("10px");
+        title.getStyle().setCursor("pointer");
 
-        String fullname = "Guest";
+        loginBtn.getStyle().setMarginLeft("auto");
+        loginBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        if(user != null)
-            fullname = user.getFullname();
+        hozLayout.add(title);
+        hozLayout.add(loginBtn);
+        hozLayout.add(registerBtn);
 
-        H4 fullName = new H4("Hello, " + fullname);
-        H2 appTitle = new H2("SecureDrop");
+        addToNavbar(hozLayout);
 
-        topNavbar.add(fullName, appTitle, logoutBtn);
-        topNavbar.expand(appTitle);
-        topNavbar.expand(fullName);
+        // Listeners
+        loginBtn.addClickListener(event -> {
+            RouterHelper.navigateTo(LoginView.class);
+        });
 
-        addToDrawer(scroller);
-        addToNavbar(toggle, topNavbar);
+        registerBtn.addClickListener(event -> {
+            RouterHelper.navigateTo(RegisterView.class);
+        });
+
+        title.addClickListener(event ->
+        {
+            UI.getCurrent().navigate("");
+        });
     }
 }

@@ -5,35 +5,55 @@ import com.ofirbsh.secure_drop.services.HashService;
 import com.ofirbsh.secure_drop.services.UserService;
 import com.ofirbsh.secure_drop.utilities.RouterHelper;
 import com.ofirbsh.secure_drop.utilities.SessionHelper;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.dom.Style.AlignItems;
+import com.vaadin.flow.dom.Style.JustifyContent;
 import com.vaadin.flow.router.Route;
 
-@Route("/login")
+@Route(value = "/login", layout = MainLayout.class)
 public class LoginView extends VerticalLayout
 {
     private final UserService userService;
 
-    private TextField usernameField;
-    private PasswordField passwordField;
-    private Button registerButton;
+    private HorizontalLayout hozLayout;
+
+    private LoginForm loginForm;
 
     public LoginView(UserService userService)
     {
+        // Service
         this.userService = userService;
 
-        usernameField = new TextField("Username");
-        passwordField = new PasswordField("Password");
-        registerButton = new Button("Login");
+        // אתחול
+        hozLayout = new HorizontalLayout(Alignment.CENTER);
+        loginForm = new LoginForm();
 
-        registerButton.addClickListener(e -> {
-            String username = usernameField.getValue();
-            String password = passwordField.getValue();
+        // משתנים
+        Span registerTxt = new Span("Don't have an account yet?");
+        Anchor registerAnchor = new Anchor("/register", "Register");
+
+        // עיצוב
+        getStyle().setAlignItems(AlignItems.CENTER);
+        loginForm.setForgotPasswordButtonVisible(false);
+        hozLayout.getStyle().setJustifyContent(JustifyContent.SPACE_BETWEEN);
+
+        // Build
+        hozLayout.add(registerTxt);
+        hozLayout.add(registerAnchor);
+
+        add(loginForm);
+        add(hozLayout);
+
+        // Listeners
+        loginForm.addLoginListener(event -> {
+            String username = event.getUsername();
+            String password = event.getPassword();
 
             User User = LoginUser(username, password);
 
@@ -48,11 +68,6 @@ public class LoginView extends VerticalLayout
                 Notification.show("Username or Password is incorrect!", 2000, Position.MIDDLE);
             }
         });
-
-        add(new H1("Login Page"));
-        add(usernameField);
-        add(passwordField);
-        add(registerButton);
     }
 
     /**

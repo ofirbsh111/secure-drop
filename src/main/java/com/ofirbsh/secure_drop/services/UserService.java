@@ -50,4 +50,22 @@ public class UserService
     {
         return (ArrayList<User>) userRepo.findAll();
     }
+
+    /**
+     * מחזיר את כל השמות משתמשים שנמצאים במסד נתונים חוץ משם המשתמש הבא כקלט
+     * @return
+     */
+    public ArrayList<String> getAllUsernames(String exceptUsername)
+    {
+        ArrayList<String> usernames = new ArrayList<>();
+        ArrayList<User> users = getAllUsers();
+
+        for (int i = 0; i < users.size(); i++) 
+        {
+            if (!users.get(i).getUsername().equals(exceptUsername)) 
+                usernames.add(users.get(i).getUsername());
+        }
+        
+        return usernames;
+    }
 }
